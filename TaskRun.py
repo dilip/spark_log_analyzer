@@ -8,8 +8,16 @@ class TaskRun:
     def __init__(self, tid, startDt, slaveId, slaveHost):
         self.mTid = tid
         self.mStartDt = startDt
+        self.mEndDt = None
         self.mSlaveId = slaveId
         self.mSlaveHost = slaveHost
 
+    def tid(self):
+        return self.mTid
+
+    def setEndDt(self, dt):
+        self.mEndDt = dt
+
     def __repr__(self):
-        return "%s on %s|%s" % (self.mTid, self.mSlaveId, self.mSlaveHost)
+        return "%s on %s|%s (%s-%s)" % (self.tid(), self.mSlaveId, self.mSlaveHost, 
+                        self.mStartDt, self.mEndDt)
