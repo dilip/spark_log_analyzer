@@ -4,7 +4,6 @@ from datetime import datetime
 
 from Job import Job
 from Task import Task
-from TaskRun import TaskRun
 
 class Analyzer:
     """
@@ -13,9 +12,6 @@ class Analyzer:
     """
 
     SPARK_LOG_LINE_REGEX = re.compile(r"""(\d+)/(\d+)/(\d+) (\d\d):(\d\d):(\d\d) INFO (spark\..*)""")
-    ADDING_JOB_REGEX = re.compile(r"""spark.MesosScheduler: Adding job with ID (\d+)""")
-    STARTING_TASK_REGEX = re.compile(r"""spark.SimpleJob: Starting task (\d+):(\d+) as TID (\d+) on slave (\S+): (\S+) (\S+)""")
-    FINISHED_TID_REGEX = re.compile(r"""spark.SimpleJob: Finished TID (\d+)""")
 
     def __init__(self):
         # JobId -> Job
@@ -70,42 +66,12 @@ class Analyzer:
         dt : datetime (i.e., timestamp) associated with the logMsg
         """
 
-        matchResult = Analyzer.STARTING_TASK_REGEX.match(logMsg)
-        if matchResult:
-            jobId = matchResult.group(1)
-            index = matchResult.group(2)
-            job = self.getJob(jobId)
-            if job is None:
-                print "ERROR: Could not find job id = %s" % jobId
-                return
-            task = job.getTask(index)
-            if task is None:
-                task = Task(jobId, index)
-                job.addTask(task)
-
-            taskRun = TaskRun(matchResult.group(3), dt, 
-                        matchResult.group(4), matchResult.group(5))
-            task.addRun(taskRun)
-            self.addTaskRun(taskRun)
+        if Task.processSparkLog(self, dt, logMsg):
             return
 
-        matchResult = Analyzer.ADDING_JOB_REGEX.match(logMsg)
-        if matchResult:
-            jobId = matchResult.group(1)
-            self.addJob(Job(jobId, dt))
+        if Job.processSparkLog(self, dt, logMsg):
             return
-
-
-        matchResult = Analyzer.FINISHED_TID_REGEX.match(logMsg)
-        if matchResult:
-            tid = matchResult.group(1)
-            taskRun = self.getTaskRun(tid)
-            if taskRun is None:
-                print "ERROR: Could not find TaskRun for TID %s which just finished" % tid
-            else:
-                taskRun.setEndDt(dt)
-            return
-            
+           
 
     def __repr__(self):
         return str(self.mJobs)
