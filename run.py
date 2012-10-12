@@ -6,12 +6,25 @@ from Analyzer import Analyzer
         
 
 class DefaultHandler:        
-    def GET(self, name):
+    def GET(self):
         raise web.seeother('/static/index.html')
+
+class DataHandler:
+    def GET(self):
+        return "TODO"
+
+class TestDataHandler:
+    def GET(self):
+        f = open("tests/data001.json","r")
+        data = f.read()
+        f.close() 
+        return data
 
 def startWebServer():
     URLS = (
-        '/(.*)', 'DefaultHandler'
+        '/test/data.json', TestDataHandler,
+        '/data.json', DataHandler,
+        '/', 'DefaultHandler'
     )
 
     app = web.application(URLS, globals())
