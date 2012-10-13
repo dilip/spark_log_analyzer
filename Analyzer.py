@@ -1,5 +1,6 @@
 import sys
 import re
+import json
 from datetime import datetime
 
 from Job import Job
@@ -15,17 +16,24 @@ class Analyzer:
 
     def __init__(self):
         # JobId -> Job
-        self.mJobs = {}
+        self.mJobsDict = {}
+        
+        self.mJobs = []
 
         # TID -> TaskRun
         self.mTaskRuns = {}
 
 
     def addJob(self, job):
-        self.mJobs[job.id()] = job
+        self.mJobsDict[job.id()] = job
+        self.mJobs.append(job)
+
+    def setEndDtOfLastJob(self, dt):
+        if len(self.mJobs) > 0:
+            self.mJobs[-1].setEndDtIfNotSet(dt)
 
     def getJob(self, id):
-        return self.mJobs.get(id, None)
+        return self.mJobsDict.get(id, None)
 
     def addTaskRun(self, taskRun):
         self.mTaskRuns[taskRun.tid()] = taskRun
@@ -37,8 +45,13 @@ class Analyzer:
         print "Processing %s" % filePath
 
         logFile = open(filePath, "r")
+        lastDt = None
         for line in logFile:
-            self.processLine(line.strip()) 
+            dt = self.processLine(line.strip())  
+            if dt is not None:
+                lastDt = dt # Also check if actual timestamp value is greater
+        if lastDt is not None:
+            self.setEndDtOfLastJob(lastDt)
         logFile.close()
 
  
@@ -46,6 +59,7 @@ class Analyzer:
         """
         Process the specified log line.  If it is a spark log line, we appropriately
         further process it.
+        Returns the timestamp of the log line if it is a spark log.  Else returns None
         """
 
         matchResult = Analyzer.SPARK_LOG_LINE_REGEX.match(line)
@@ -58,6 +72,9 @@ class Analyzer:
                         int(matchResult.group(6)))
             logMsg = matchResult.group(7) 
             self.processSparkLog(dt, logMsg)
+            return dt
+
+        return None
 
 
     def processSparkLog(self, dt, logMsg):
@@ -75,4 +92,8 @@ class Analyzer:
 
     def __repr__(self):
         return str(self.mJobs)
+
+    def toJSON(self):
+        jobs = [job.jsonDict() for job in self.mJobs]
+        return json.dumps(jobs)
 

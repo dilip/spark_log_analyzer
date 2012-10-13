@@ -1,3 +1,5 @@
+from Utils import dt2Epoch
+
 class TaskRun:
     """
     Represents a run of a Task.  Normally a Task runs only once.
@@ -17,6 +19,13 @@ class TaskRun:
 
     def setEndDt(self, dt):
         self.mEndDt = dt
+
+    def jsonDict(self):
+        return {
+                "tid": self.tid(),
+                "startEpochSeconds": dt2Epoch(self.mStartDt),
+                "endEpochSeconds": dt2Epoch(self.mEndDt)
+            }
 
     def __repr__(self):
         return "%s on %s|%s (%s-%s)" % (self.tid(), self.mSlaveId, self.mSlaveHost, 

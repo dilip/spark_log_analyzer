@@ -25,6 +25,12 @@ class Task:
     def addRun(self, taskRun):
         self.mRuns[taskRun.mTid] = taskRun
 
+    def jsonDict(self):
+        return {
+                "index": self.mIndex,
+                "runs": [taskRun.jsonDict() for taskRun in self.mRuns.values()]
+            }
+
     def __repr__(self):
         return "%s:%s runs=[%s]" % (self.mJobId, self.mIndex, self.mRuns)
 

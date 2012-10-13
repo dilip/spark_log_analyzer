@@ -3,7 +3,7 @@ import web
 
 from Analyzer import Analyzer
 
-        
+analyzer = None
 
 class DefaultHandler:        
     def GET(self):
@@ -11,7 +11,7 @@ class DefaultHandler:
 
 class DataHandler:
     def GET(self):
-        return "TODO"
+        return analyzer.toJSON()
 
 class TestDataHandler:
     def GET(self):
@@ -45,7 +45,8 @@ if __name__ == "__main__":
     analyzer = Analyzer()
     analyzer.processFile(logFileName)
 
-    print analyzer
+    #print analyzer
+    print analyzer.toJSON()
     
     print "Starting webserver"
 
