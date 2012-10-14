@@ -1,9 +1,11 @@
 // Color for the job background
 var JOB_COLORS = ["#FFDFF8", "#FFDFDF", "#E6DBFF", "#C9EAF3", "#CAFFD8", "#CEFFFD", "#F7F9D0"];
 
-var barWidth = 20;
 var width = 1000;
 var height = 1000;
+
+var barWidth=20;
+var barSpacing=5;
 
 var data; // a global
 
@@ -12,7 +14,17 @@ var x;
 var y;
 
 function initScales() {
-    x = d3.scale.linear().domain([0, 500]).range([0, width-2*barWidth]);
+
+    var maxTasks = d3.max(data, 
+                            function(sparkJob) {
+                                return d3.max(sparkJob.mesosJobs,
+                                    function(mesosJob) {
+                                        return mesosJob.tasks.length;
+                                    });
+                            });
+    console.log("Max tasks: " + maxTasks);
+ 
+    x = d3.scale.linear().domain([0, barWidth*2 + maxTasks * (barWidth+barSpacing)]).range([0, width]);
     tmp = [
                 d3.min(data, function(d) {return d.startEpochSeconds;}),
                 d3.max(data, function(d) {return d.endEpochSeconds;})
@@ -24,7 +36,7 @@ function initScales() {
 }
 
 function initScales2() {
-    x = d3.scale.linear().domain([0, 500]).range([0, width-2*barWidth]);
+    x = d3.scale.linear().domain([0, 500]).range([0, width]);
     y = d3.scale.linear()
             .domain([
                 d3.min(data, function(d) {
@@ -47,6 +59,7 @@ function initScales2() {
 function loadData(url) {
     d3.json(url, function(json) {
         data = json;
+       
         initScales();
         visualizeIt();
     });
@@ -67,7 +80,7 @@ function visualizeIt() {
                     .append("svg:g")
                     .attr("class", "sparkJob");
 
-    // Bind a rect covering the whole width to represent the job
+    // Bind a rect covering the whole width to represent the spark job
     sparkJobGroup.append("rect")
         .attr("class", "jobMain")
         .attr("x", function(datum, index) { return x(0); })
@@ -87,10 +100,10 @@ function visualizeIt() {
     // Text for Job id
     mesosJobGroup.append("svg:text")
         .attr("x", function(datum, index) { return x(barWidth); })
-        .attr("y", function(datum) { return  y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2 + 10); })
+        .attr("y", function(datum) { return  y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2); })
         .attr("dx", 20)
         .attr("text-anchor", "middle")
-        .attr('transform', function(datum, index) { return 'rotate(-90 ' + x(barWidth) + ',' + y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2 + 10)+ ')';})
+        .attr('transform', function(datum, index) { return 'rotate(-90 ' + x(barWidth) + ',' + y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2)+ ')';})
         .text(function(datum) { return "Job ID " + datum.id;})
         .attr("fill", "white");
 
@@ -103,7 +116,7 @@ function visualizeIt() {
                         .enter()
                         .append("svg:g")
                         .attr("class", "task")
-                        .attr("transform", function(d, index) { return "translate(" + x(barWidth*2 + index * (barWidth+5)) + ",0)"; });
+                        .attr("transform", function(d, index) { return "translate(" + x(barWidth*2 + index * (barWidth+barSpacing)) + ",0)"; });
 
     // Bind each task run within a task to an svg group
     var taskRunGroup = taskGroup.selectAll("g .run")
