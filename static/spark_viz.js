@@ -107,6 +107,17 @@ function visualizeIt() {
         .text(function(datum) { return "Job ID " + datum.id;})
         .attr("fill", "white");
 
+    // Add a line to show start of mesos job
+    mesosJobGroup.append("svg:line")
+        .attr("x1", function(datum, index) { return 0; })
+        .attr("x2", function(datum, index) { return width; })
+        .attr("y1", function(datum) { return  y(datum.startEpochSeconds); })
+        .attr("y2", function(datum) { return  y(datum.startEpochSeconds); })
+        .style("stroke-width", 1)
+        .style("stroke", "rgb(0,0,0)")
+        ;
+
+
 
     // Bind each task within a job to an svg group
     // taskGroup defines a new coordinate system for its children.
