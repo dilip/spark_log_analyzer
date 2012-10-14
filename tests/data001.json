@@ -1,11 +1,18 @@
 [
-    {"id": 1, "startEpochSeconds" : 100, "endEpochSeconds": 350, "tasks": [
-        { "index": 1, "runs": [ {"tid": 123, "startEpochSeconds" : 100, "endEpochSeconds": 200}]},
-        { "index": 2, "runs": [ {"tid": 56, "startEpochSeconds" : 200, "endEpochSeconds": 350}]},
-        { "index": 3, "runs": [ {"tid": 124, "startEpochSeconds" : 150, "endEpochSeconds": 300}]}
+    {"startEpochSeconds": 100, "endEpochSeconds": 400, "mesosJobs": [
+        {"id": 1, "startEpochSeconds" : 100, "endEpochSeconds": 350, "tasks": [
+            { "index": 1, "runs": [ {"tid": 123, "startEpochSeconds" : 100, "endEpochSeconds": 200}]},
+            { "index": 2, "runs": [ {"tid": 56, "startEpochSeconds" : 200, "endEpochSeconds": 350}]},
+            { "index": 3, "runs": [ {"tid": 124, "startEpochSeconds" : 150, "endEpochSeconds": 300}]}
+        ]},
+        {"id": 2, "startEpochSeconds" : 355, "endEpochSeconds": 400, "tasks" : [
+            { "index": 4, "runs": [{"tid": 201, "startEpochSeconds" : 356, "endEpochSeconds": 399}]},
+            { "index": 5, "runs": [{"tid": 202, "startEpochSeconds" : 358, "endEpochSeconds": 399}]}
+        ]}
     ]},
-    {"id": 2, "startEpochSeconds" : 355, "endEpochSeconds": 400, "tasks" : [
-        { "index": 4, "runs": [{"tid": 201, "startEpochSeconds" : 356, "endEpochSeconds": 399}]},
-        { "index": 5, "runs": [{"tid": 202, "startEpochSeconds" : 358, "endEpochSeconds": 399}]}
+    {"startEpochSeconds": 410, "endEpochSeconds": 500, "mesosJobs": [
+        {"id": 3, "startEpochSeconds" : 401, "endEpochSeconds": 490, "tasks" : [
+            { "index": 6, "runs": [{"tid": 301, "startEpochSeconds" : 410, "endEpochSeconds": 490}]}
+        ]}
     ]}
 ]

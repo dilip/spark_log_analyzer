@@ -2,9 +2,9 @@ import re
 
 from Utils import dt2Epoch
 
-class Job:
+class MesosJob:
     """ 
-    Represents a Spark Job
+    Represents a Mesos Job
     
     """
 
@@ -24,7 +24,6 @@ class Job:
         self.mTasks = {}
 
     def setEndDtIfNotSet(self, dt):
-        print "Foo", dt
         if self.mEndDt is None:
             self.mEndDt = dt
 
@@ -41,8 +40,8 @@ class Job:
 
 
     def __repr__(self):
-        return "JobId=%s StartedAt=%s EndedAt=%s Tasks=[%s]" % (self.mId, self.mStartDt, self.mEndDt, self.mTasks)
-        #return "JobId=%s StartedAt=%s EndedAt=%s" % (self.mId, self.mStartDt, self.mEndDt)
+        return "MesosJobId=%s StartedAt=%s EndedAt=%s Tasks=[%s]" % (self.mId, self.mStartDt, self.mEndDt, self.mTasks)
+        #return "MesosJobId=%s StartedAt=%s EndedAt=%s" % (self.mId, self.mStartDt, self.mEndDt)
 
     def jsonDict(self):
         return {
@@ -60,15 +59,15 @@ class Job:
 
         """
 
-        matchResult = Job.ADDING_JOB_REGEX.match(logMsg)
+        matchResult = MesosJob.ADDING_JOB_REGEX.match(logMsg)
         if matchResult:
             jobId = matchResult.group(1)
-            analyzer.addJob(Job(jobId, dt))
+            analyzer.addMesosJob(MesosJob(jobId, dt))
             return True
 
-        matchResult = Job.END_JOB_REGEX.match(logMsg)
+        matchResult = MesosJob.END_JOB_REGEX.match(logMsg)
         if matchResult:
-            analyzer.setEndDtOfLastJob(dt)
+            analyzer.setEndDtOfLastMesosJob(dt)
             return True
 
         return False

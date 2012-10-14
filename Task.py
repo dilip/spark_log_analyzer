@@ -12,7 +12,7 @@ class Task:
 
         """
 
-        self.mJobId = jobId
+        self.mMesosJobId = jobId
         self.mIndex = index
 
         # TID -> TaskRun
@@ -32,7 +32,7 @@ class Task:
             }
 
     def __repr__(self):
-        return "%s:%s runs=[%s]" % (self.mJobId, self.mIndex, self.mRuns)
+        return "%s:%s runs=[%s]" % (self.mMesosJobId, self.mIndex, self.mRuns)
 
     @staticmethod
     def processSparkLog(analyzer, dt, logMsg):
@@ -46,7 +46,7 @@ class Task:
         if matchResult:
             jobId = matchResult.group(1)
             index = matchResult.group(2)
-            job = analyzer.getJob(jobId)
+            job = analyzer.getMesosJob(jobId)
             if job is None:
                 print "ERROR: Could not find job id = %s" % jobId
                 return

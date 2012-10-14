@@ -45,8 +45,8 @@ if __name__ == "__main__":
     analyzer = Analyzer()
     analyzer.processFile(logFileName)
 
-    #print analyzer
-    print analyzer.toJSON()
+    print analyzer
+    #print analyzer.toJSON()
     
     print "Starting webserver"
 

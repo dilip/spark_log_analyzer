@@ -3,7 +3,8 @@ import re
 import json
 from datetime import datetime
 
-from Job import Job
+from SparkJob import SparkJob
+from MesosJob import MesosJob
 from Task import Task
 
 class Analyzer:
@@ -15,25 +16,39 @@ class Analyzer:
     SPARK_LOG_LINE_REGEX = re.compile(r"""(\d+)/(\d+)/(\d+) (\d\d):(\d\d):(\d\d) INFO (spark\..*)""")
 
     def __init__(self):
-        # JobId -> Job
-        self.mJobsDict = {}
-        
-        self.mJobs = []
+        # MesosJobId -> Job
+        self.mMesosJobsDict = {}
+       
+        self.mSparkJobs = []
 
         # TID -> TaskRun
         self.mTaskRuns = {}
 
 
-    def addJob(self, job):
-        self.mJobsDict[job.id()] = job
-        self.mJobs.append(job)
+    def addMesosJob(self, job):
+        self.mMesosJobsDict[job.id()] = job
+        sparkJob = self.getLastSparkJob()
+        sparkJob.addMesosJob(job)
 
-    def setEndDtOfLastJob(self, dt):
-        if len(self.mJobs) > 0:
-            self.mJobs[-1].setEndDtIfNotSet(dt)
+    def addSparkJob(self, sparkJob):
+        self.mSparkJobs.append(sparkJob)
 
-    def getJob(self, id):
-        return self.mJobsDict.get(id, None)
+    def getLastSparkJob(self):
+        if len(self.mSparkJobs) > 0:
+            return self.mSparkJobs[-1]
+        else:
+            raise Exception("Spark job not found")
+
+    def setEndDtOfLastMesosJob(self, dt):
+        lastMesosJob = self.getLastSparkJob().getLastMesosJob()
+        if lastMesosJob is not None:
+            lastMesosJob.setEndDtIfNotSet(dt)
+
+    def setEndDtOfLastSparkJob(self, dt):
+        self.getLastSparkJob().setEndDtIfNotSet(dt)
+   
+    def getMesosJob(self, id):
+        return self.mMesosJobsDict.get(id, None)
 
     def addTaskRun(self, taskRun):
         self.mTaskRuns[taskRun.tid()] = taskRun
@@ -51,7 +66,8 @@ class Analyzer:
             if dt is not None:
                 lastDt = dt # Also check if actual timestamp value is greater
         if lastDt is not None:
-            self.setEndDtOfLastJob(lastDt)
+            self.setEndDtOfLastMesosJob(lastDt)
+            self.setEndDtOfLastSparkJob(lastDt)
         logFile.close()
 
  
@@ -86,14 +102,17 @@ class Analyzer:
         if Task.processSparkLog(self, dt, logMsg):
             return
 
-        if Job.processSparkLog(self, dt, logMsg):
+        if MesosJob.processSparkLog(self, dt, logMsg):
+            return
+
+        if SparkJob.processSparkLog(self, dt, logMsg):
             return
            
 
     def __repr__(self):
-        return str(self.mJobs)
+        return str(self.mSparkJobs)
 
     def toJSON(self):
-        jobs = [job.jsonDict() for job in self.mJobs]
+        jobs = [job.jsonDict() for job in self.mSparkJobs]
         return json.dumps(jobs)
 
