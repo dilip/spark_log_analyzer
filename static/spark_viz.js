@@ -119,11 +119,11 @@ function visualizeIt() {
                         .attr("transform", function(d, index) { return "translate(" + x(barWidth*2 + index * (barWidth+barSpacing)) + ",0)"; });
 
     // Bind each task run within a task to an svg group
-    var taskRunGroup = taskGroup.selectAll("g .run")
+    var taskRunGroup = taskGroup.selectAll("g .taskRun")
         .data(function(d) {return d.runs;})
         .enter()
         .append("svg:g")
-        .attr("class", "run");
+        .attr("class", "taskRun");
  
     taskRunGroup.append("svg:rect")
          .attr("x", function(datum, index) { return x(0); })
