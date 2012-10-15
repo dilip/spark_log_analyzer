@@ -7,3 +7,9 @@
     stroke-width: 1;
     stroke: rgb(0,0,0);
 }
+
+.sparkJobDuration {
+    fill: rgb(0,0,0);
+    text-anchor: middle;
+    font-size: 24px;
+}

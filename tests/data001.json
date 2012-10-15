@@ -1,5 +1,5 @@
 [
-    {"startEpochSeconds": 100, "endEpochSeconds": 400, "mesosJobs": [
+    {"startEpochSeconds": 100, "endEpochSeconds": 400, "durationSeconds": 300.1, "mesosJobs": [
         {"id": 1, "startEpochSeconds" : 100, "endEpochSeconds": 350, "tasks": [
             { "index": 1, "runs": [ {"tid": 123, "startEpochSeconds" : 100, "endEpochSeconds": 200}]},
             { "index": 2, "runs": [ {"tid": 56, "startEpochSeconds" : 200, "endEpochSeconds": 350}]},
@@ -10,7 +10,7 @@
             { "index": 5, "runs": [{"tid": 202, "startEpochSeconds" : 358, "endEpochSeconds": 399}]}
         ]}
     ]},
-    {"startEpochSeconds": 410, "endEpochSeconds": 500, "mesosJobs": [
+    {"startEpochSeconds": 410, "endEpochSeconds": 500, "durationSeconds": 90.01, "mesosJobs": [
         {"id": 3, "startEpochSeconds" : 401, "endEpochSeconds": 490, "tasks" : [
             { "index": 6, "runs": [{"tid": 301, "startEpochSeconds" : 410, "endEpochSeconds": 490}]}
         ]}
