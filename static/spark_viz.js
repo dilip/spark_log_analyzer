@@ -1,21 +1,24 @@
 // Color for the job background
 var JOB_COLORS = ["#FFDFF8", "#FFDFDF", "#E6DBFF", "#C9EAF3", "#CAFFD8", "#CEFFFD", "#F7F9D0"];
 
-var width = 1000;
+/* The total width of the visualization */
+var WIDTH = 1000;
+/* The total height of the visualization */
 var height = 1000;
 
-var barWidth=20;
-var barSpacing=5;
+/* Width of a bar representing a task run */
+var BAR_WIDTH=20;
+var BAR_SPACING=5;
 
-var data; // a global
+var DATA; // a global
 
 // Scale functions
-var x;
-var y;
+var X;
+var Y;
 
 function initScales() {
 
-    var maxTasks = d3.max(data, 
+    var maxTasks = d3.max(DATA, 
                             function(sparkJob) {
                                 return d3.max(sparkJob.mesosJobs,
                                     function(mesosJob) {
@@ -24,29 +27,29 @@ function initScales() {
                             });
     console.log("Max tasks: " + maxTasks);
  
-    x = d3.scale.linear().domain([0, barWidth*2 + maxTasks * (barWidth+barSpacing)]).range([0, width]);
+    X = d3.scale.linear().domain([0, BAR_WIDTH*2 + maxTasks * (BAR_WIDTH+BAR_SPACING)]).range([0, WIDTH]);
     tmp = [
-                d3.min(data, function(d) {return d.startEpochSeconds;}),
-                d3.max(data, function(d) {return d.endEpochSeconds;})
+                d3.min(DATA, function(d) {return d.startEpochSeconds;}),
+                d3.max(DATA, function(d) {return d.endEpochSeconds;})
             ];
     console.log("y range is : " + tmp);
-    y = d3.scale.linear()
+    Y = d3.scale.linear()
             .domain(tmp)
             .rangeRound([0, height]);
 }
 
 function initScales2() {
-    x = d3.scale.linear().domain([0, 500]).range([0, width]);
-    y = d3.scale.linear()
+    X = d3.scale.linear().domain([0, 500]).range([0, WIDTH]);
+    Y = d3.scale.linear()
             .domain([
-                d3.min(data, function(d) {
+                d3.min(DATA, function(d) {
                         return d3.min(d.tasks, function(d1) { 
                             return d3.min(d1.runs, function(d2) {
                                 return d2.startEpochSeconds;
                             });
                         });
                     }), 
-                d3.max(data, function(d) {
+                d3.max(DATA, function(d) {
                         return d3.max(d.tasks, function(d1) { 
                             return d3.max(d1.runs, function(d2) {
                                 return d2.endEpochSeconds;
@@ -58,7 +61,7 @@ function initScales2() {
 
 function loadData(url) {
     d3.json(url, function(json) {
-        data = json;
+        DATA = json;
        
         initScales();
         visualizeIt();
@@ -70,12 +73,12 @@ function visualizeIt() {
     // add the canvas to the DOM
     var svg = d3.select("#viz")
                 .append("svg:svg")
-                .attr("width", width)
+                .attr("width", WIDTH)
                 .attr("height", height);
     
     // Bind each spark job to an svg group
     var sparkJobGroup = svg.selectAll("g")
-                    .data(data)
+                    .data(DATA)
                     .enter()
                     .append("svg:g")
                     .attr("class", "sparkJob");
@@ -83,13 +86,17 @@ function visualizeIt() {
     // Bind a rect covering the whole width to represent the spark job
     sparkJobGroup.append("rect")
         .attr("class", "jobMain")
-        .attr("x", function(datum, index) { return x(0); })
-        .attr("y", function(datum) { return y(datum.startEpochSeconds); })
-        .attr("height", function(datum) { t= y(datum.endEpochSeconds) - y(datum.startEpochSeconds); return t; })
-        .attr("width", width)
+        .attr("x", function(datum, index) { return X(0); })
+        .attr("y", function(datum) { return Y(datum.startEpochSeconds); })
+        .attr("height", function(datum) { t= Y(datum.endEpochSeconds) - Y(datum.startEpochSeconds); return t; })
+        .attr("width", WIDTH)
         .attr("fill", function(datum, index) { return JOB_COLORS[index % JOB_COLORS.length]; });
 
+    drawMesosJobs(sparkJobGroup);
 
+}
+
+function drawMesosJobs(sparkJobGroup) {
     // Bind each mesos job to an svg group
     var mesosJobGroup = sparkJobGroup.selectAll("g.mesosJob")
                     .data(function(d) { return d.mesosJobs;})
@@ -99,26 +106,26 @@ function visualizeIt() {
 
     // Text for Job id
     mesosJobGroup.append("svg:text")
-        .attr("x", function(datum, index) { return x(barWidth); })
-        .attr("y", function(datum) { return  y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2); })
+        .attr("x", function(datum, index) { return X(BAR_WIDTH); })
+        .attr("y", function(datum) { return  Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2); })
         .attr("dx", 20)
         .attr("text-anchor", "middle")
-        .attr('transform', function(datum, index) { return 'rotate(-90 ' + x(barWidth) + ',' + y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2)+ ')';})
+        .attr('transform', function(datum, index) { return 'rotate(-90 ' + X(BAR_WIDTH) + ',' + Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2)+ ')';})
         .text(function(datum) { return "Job ID " + datum.id;})
         .attr("fill", "white");
 
     // Add a line to show start of mesos job
     mesosJobGroup.append("svg:line")
         .attr("x1", function(datum, index) { return 0; })
-        .attr("x2", function(datum, index) { return width; })
-        .attr("y1", function(datum) { return  y(datum.startEpochSeconds); })
-        .attr("y2", function(datum) { return  y(datum.startEpochSeconds); })
-        .style("stroke-width", 1)
-        .style("stroke", "rgb(0,0,0)")
-        ;
+        .attr("x2", function(datum, index) { return WIDTH; })
+        .attr("y1", function(datum) { return  Y(datum.startEpochSeconds); })
+        .attr("y2", function(datum) { return  Y(datum.startEpochSeconds); });
 
+    drawTasks(mesosJobGroup);
 
+}
 
+function drawTasks(mesosJobGroup) {
     // Bind each task within a job to an svg group
     // taskGroup defines a new coordinate system for its children.
     // Tasks are laid out horizontally
@@ -127,7 +134,7 @@ function visualizeIt() {
                         .enter()
                         .append("svg:g")
                         .attr("class", "task")
-                        .attr("transform", function(d, index) { return "translate(" + x(barWidth*2 + index * (barWidth+barSpacing)) + ",0)"; });
+                        .attr("transform", function(d, index) { return "translate(" + X(BAR_WIDTH*2 + index * (BAR_WIDTH+BAR_SPACING)) + ",0)"; });
 
     // Bind each task run within a task to an svg group
     var taskRunGroup = taskGroup.selectAll("g .taskRun")
@@ -137,10 +144,10 @@ function visualizeIt() {
         .attr("class", "taskRun");
  
     taskRunGroup.append("svg:rect")
-         .attr("x", function(datum, index) { return x(0); })
-         .attr("y", function(datum) { return y(datum.startEpochSeconds); })
-         .attr("height", function(datum) { return y(datum.endEpochSeconds) - y(datum.startEpochSeconds); })
-         .attr("width", x(barWidth))
+         .attr("x", function(datum, index) { return X(0); })
+         .attr("y", function(datum) { return Y(datum.startEpochSeconds); })
+         .attr("height", function(datum) { return Y(datum.endEpochSeconds) - Y(datum.startEpochSeconds); })
+         .attr("width", X(BAR_WIDTH))
          .attr("fill", "#2d578b");
 
     // Text for Task Id
@@ -154,11 +161,11 @@ function visualizeIt() {
 }
 
 function getTaskIdTextX(datum, index) {
-    return x(barWidth/2 + barWidth/3);
+    return X(BAR_WIDTH/2 + BAR_WIDTH/3);
 }
 
 function getTaskIdTextY(datum, index) {
-    return y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2);
+    return Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2);
 }
 
 
