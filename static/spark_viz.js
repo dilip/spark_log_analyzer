@@ -77,10 +77,10 @@ function visualizeIt() {
     // Text for spark job duration
     sparkJobGroup.append("svg:text")
         .attr("class", "sparkJobDuration")
-        .attr("x", function(datum, index) { return MARGIN_SCALED; })
+        .attr("x", function(datum, index) { return MARGIN_SCALED * 0.75; })
         .attr("y", function(datum) { return  Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2); })
         .attr("dx", 20)
-        .attr('transform', function(datum, index) { return 'rotate(-90 ' + MARGIN_SCALED + ',' + Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2)+ ')';})
+        .attr('transform', function(datum, index) { return 'rotate(-90 ' + MARGIN_SCALED*0.75 + ',' + Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2)+ ')';})
         .text(function(datum) { return datum.durationSeconds + "s";});
 
 
@@ -140,25 +140,14 @@ function drawTasks(mesosJobGroup) {
          .attr("x", function(datum, index) { return X(0); })
          .attr("y", function(datum) { return Y(datum.startEpochSeconds); })
          .attr("height", function(datum) { return Y(datum.endEpochSeconds) - Y(datum.startEpochSeconds); })
-         .attr("width", X(BAR_WIDTH))
-         .attr("fill", "#2d578b");
+         .attr("width", X(BAR_WIDTH));
 
-    // Text for Task Id
-    taskRunGroup.append("svg:text")
-        .attr("x", getTaskIdTextX)
-        .attr("y", getTaskIdTextY)
-        //.attr("text-anchor", "middle")
-        .attr('transform', function(datum, index) { return 'rotate(-90 ' + getTaskIdTextX(datum, index) + ' ' + getTaskIdTextY(datum, index) + ')';})
-        .text(function(datum) { return "TID " + datum.tid;})
-        .attr("fill", "white");
+    $(".taskRun rect").tipsy({ 
+        gravity: 'w', 
+        html: true, 
+        title: function() {
+          var d = this.__data__;
+          return 'TID ' + d.tid + " (" + (d.endEpochSeconds-d.startEpochSeconds) + "s)"; 
+        }
+      });
 }
-
-function getTaskIdTextX(datum, index) {
-    return X(BAR_WIDTH/2 + BAR_WIDTH/3);
-}
-
-function getTaskIdTextY(datum, index) {
-    return Y(datum.startEpochSeconds + (datum.endEpochSeconds - datum.startEpochSeconds)/2);
-}
-
-

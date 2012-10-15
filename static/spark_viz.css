@@ -1,6 +1,7 @@
 .taskRun rect {
     stroke-width: 1;
     stroke: rgb(255,0,0);
+    fill: #2d578b;
 }
 
 .mesosJob line {
@@ -11,5 +12,5 @@
 .sparkJobDuration {
     fill: rgb(0,0,0);
     text-anchor: middle;
-    font-size: 24px;
+    font-size: 20px;
 }
